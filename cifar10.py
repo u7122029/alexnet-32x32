@@ -40,5 +40,4 @@ def load_cifar10_datasets():
 
 if __name__ == "__main__":
     train_dset, test_dset = load_cifar10_datasets()
-
     print(train_dset[0])
