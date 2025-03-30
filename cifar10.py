@@ -1,4 +1,4 @@
-from torchvision.transforms.v2 import Normalize, ToTensor, Compose, ToImage, ToDtype
+from torchvision.transforms.v2 import Normalize, ToTensor, Compose, ToImage, ToDtype, Resize, CenterCrop
 
 from paths import TEMP_DIR, DATASETS_PATH
 
@@ -21,7 +21,7 @@ def obtain_cifar10_mean_std(download=False):
     std, mean = torch.std_mean(combined, dim=(0,2,3))
     torch.save({"mean": mean, "std": std}, "temp/cifar10_normalisation_params.pt")
 
-def get_transform_cifar10():
+def get_transform_cifar10(original_model_version: bool):
     norm_filepath = TEMP_DIR / "cifar10_normalisation_params.pt"
     if not norm_filepath.exists():
         obtain_cifar10_mean_std(False)
@@ -29,15 +29,18 @@ def get_transform_cifar10():
     mean = norm_params["mean"]
     std = norm_params["std"]
 
-    transform = Compose([NewToTensor(), Normalize(mean, std)])
+    if not original_model_version:
+        transform = Compose([NewToTensor(), Normalize(mean, std)])
+    else:
+        transform = Compose([Resize(256), CenterCrop(224), NewToTensor(), Normalize(mean, std)])
     return transform
 
-def load_cifar10_datasets():
-    transform = get_transform_cifar10()
+def load_cifar10_datasets(original_model_version: bool):
+    transform = get_transform_cifar10(original_model_version)
     train_dset = CIFAR10(DATASETS_PATH / "CIFAR10", True, transform)
     test_dset = CIFAR10(DATASETS_PATH / "CIFAR10", False, transform)
     return train_dset, test_dset
 
 if __name__ == "__main__":
-    train_dset, test_dset = load_cifar10_datasets()
+    train_dset, test_dset = load_cifar10_datasets(False)
     print(train_dset[0])

@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
+import torchvision.models as models
 
 class AlexNet(nn.Module):
     def __init__(self, image_size, out_classes):
@@ -80,6 +81,11 @@ class AlexNet(nn.Module):
 
         x = self.l3(x)
         return x
+
+def choose_model(original_model_version: bool):
+    if not original_model_version:
+        return AlexNet(32, 10)
+    return models.AlexNet(10)
 
 if __name__ == "__main__":
     # testing code.
