@@ -37,10 +37,10 @@ class AlexNet(nn.Module):
         self.pooling3 = nn.MaxPool2d(kernel_size=3, stride=2)
         #self.l1_size = (self.l1_size - 3 + 2 * 0) // 2 + 1
 
-        self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
+        #self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
 
         self.d1 = nn.Dropout()
-        self.l1 = nn.Linear(6 * 6 * 256, 4096)
+        self.l1 = nn.Linear(3 * 3 * 256, 4096)
         self.d2 = nn.Dropout()
         self.l2 = nn.Linear(4096, 4096)
         self.l3 = nn.Linear(4096, self.out_classes)
@@ -66,7 +66,7 @@ class AlexNet(nn.Module):
         x = F.relu(x, inplace=True)
         x = self.pooling3(x)
 
-        x = self.avgpool(x)
+        #x = self.avgpool(x)
 
         x = torch.flatten(x, 1)
 
