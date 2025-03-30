@@ -5,42 +5,42 @@ from torch.nn import functional as F
 class AlexNet(nn.Module):
     def __init__(self, image_size, out_classes):
         super().__init__()
-        self.l1_size = image_size
+        #self.l1_size = image_size
         self.out_classes = out_classes
 
         # usual would be kernel size 11, stride 4, padding 0, but we use kernel size 3 instead for CIFAR10 and MNIST
-        self.conv1 = nn.Conv2d(3, 96, kernel_size=3, stride=1, padding=1)
-        self.l1_size = (self.l1_size - 3 + 2 * 1) // 1 + 1
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
+        #self.l1_size = (self.l1_size - 3 + 2 * 1) // 1 + 1
 
         self.pooling1 = nn.MaxPool2d(kernel_size=3, stride=2)
-        self.l1_size = (self.l1_size - 3 + 2 * 0) // 2 + 1
+        #self.l1_size = (self.l1_size - 3 + 2 * 0) // 2 + 1
 
         self.lrm1 = nn.LocalResponseNorm(5, 1e-4, 0.75, 2)
 
-        self.conv2 = nn.Conv2d(96, 256, 5, padding=2) # add padding to preserve dimensions according to diagram.
-
-        self.l1_size = (self.l1_size - 5 + 2 * 2) // 1 + 1
+        self.conv2 = nn.Conv2d(64, 192, 5, padding=2) # add padding to preserve dimensions according to diagram.
+        #self.l1_size = (self.l1_size - 5 + 2 * 2) // 1 + 1
 
         self.pooling2 = nn.MaxPool2d(kernel_size=3, stride=2)
-        self.l1_size = (self.l1_size - 3 + 2 * 0) // 2 + 1
+        #self.l1_size = (self.l1_size - 3 + 2 * 0) // 2 + 1
 
         self.lrm2 = nn.LocalResponseNorm(5, 1e-4, 0.75, 2)
 
-        self.conv3 = nn.Conv2d(256, 384, 3, padding=1)
-        self.l1_size = (self.l1_size - 3 + 2 * 1) // 1 + 1
+        self.conv3 = nn.Conv2d(192, 384, 3, padding=1)
+        #self.l1_size = (self.l1_size - 3 + 2 * 1) // 1 + 1
 
-        self.conv4 = nn.Conv2d(384, 384, 3, padding=1)
-        self.l1_size = (self.l1_size - 3 + 2 * 1) // 1 + 1
+        self.conv4 = nn.Conv2d(384, 256, 3, padding=1)
+        #self.l1_size = (self.l1_size - 3 + 2 * 1) // 1 + 1
 
-        self.conv5 = nn.Conv2d(384, 256, 3, padding=1)
-        self.l1_size = (self.l1_size - 3 + 2 * 1) // 1 + 1
+        self.conv5 = nn.Conv2d(256, 256, 3, padding=1)
+        #self.l1_size = (self.l1_size - 3 + 2 * 1) // 1 + 1
 
         self.pooling3 = nn.MaxPool2d(kernel_size=3, stride=2)
-        self.l1_size = (self.l1_size - 3 + 2 * 0) // 2 + 1
-        print(self.l1_size)
+        #self.l1_size = (self.l1_size - 3 + 2 * 0) // 2 + 1
+
+        self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
 
         self.d1 = nn.Dropout()
-        self.l1 = nn.Linear(self.l1_size * self.l1_size * 256, 4096)
+        self.l1 = nn.Linear(6 * 6 * 256, 4096)
         self.d2 = nn.Dropout()
         self.l2 = nn.Linear(4096, 4096)
         self.l3 = nn.Linear(4096, self.out_classes)
@@ -65,6 +65,8 @@ class AlexNet(nn.Module):
         x = self.conv5(x)
         x = F.relu(x, inplace=True)
         x = self.pooling3(x)
+
+        x = self.avgpool(x)
 
         x = torch.flatten(x, 1)
 
